@@ -3,8 +3,12 @@
 #
 FROM appsoa/docker-centos-base-java:latest
 
+USER root
+
 ENV JENKINS_HOME /var/jenkins_home
 ENV JENKINS_SLAVE_AGENT_PORT 50000
+ENV JENKINS_UC https://updates.jenkins.io
+ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
 ARG user=jenkins
 ARG group=jenkins
@@ -20,6 +24,8 @@ RUN groupadd -g ${gid} ${group} \
 # Jenkins home directory is a volume, so configuration and build history
 # can be persisted and survive image upgrades
 VOLUME /var/jenkins_home
+
+RUN chown -R ${user} "$JENKINS_HOME" /usr/share/jenkins
 
 # `/usr/share/jenkins/ref/` contains all reference configuration we want
 # to set on a fresh new installation. Use it to bundle additional plugins
@@ -43,14 +49,8 @@ ARG JENKINS_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-w
 RUN curl -fsSL ${JENKINS_URL} -o /usr/share/jenkins/jenkins.war \
   && echo "${JENKINS_SHA}  /usr/share/jenkins/jenkins.war" | sha1sum -c -
 
-ENV JENKINS_UC https://updates.jenkins.io
-RUN chown -R ${user} "$JENKINS_HOME" /usr/share/jenkins/ref
 
 
-
-ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
-
-USER ${user}
 
 COPY src/jenkins-support /usr/local/bin/jenkins-support
 COPY src/jenkins.sh /usr/local/bin/jenkins.sh
@@ -69,15 +69,10 @@ RUN install-plugins.sh  git \
                         gcloud-sdk \
                         simple-theme-plugin
 
-ENTRYPOINT ["/usr/local/bin/jenkins.sh"]
-
-# Web UI & Slaves
 EXPOSE 8080 50000
 
+RUN chown -R ${user} "$JENKINS_HOME" /usr/share/jenkins
 
-# ADD http://updates.jenkins-ci.org/latest/git.hpi /var/lib/jenkins/plugins/git.hpi
-# ADD http://updates.jenkins-ci.org/latest/ssh-credentials.hpi /var/lib/jenkins/plugins/ssh-credentials.hpi
-# ADD http://updates.jenkins-ci.org/latest/git-client.hpi /var/lib/jenkins/plugins/git-client.hpi
-# ADD http://updates.jenkins-ci.org/latest/scm-api.hpi /var/lib/jenkins/plugins/scm-api.hpi
-# ADD http://updates.jenkins-ci.org/latest/ssh-credentials.hpi /var/lib/jenkins/plugins/ssh-credentials.hpi
-# ADD http://updates.jenkins-ci.org/latest/credentials.hpi /var/lib/jenkins/plugins/credentials.hpi
+USER ${user}
+
+ENTRYPOINT ["/usr/local/bin/jenkins.sh"]
