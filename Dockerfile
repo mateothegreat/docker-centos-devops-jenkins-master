@@ -26,7 +26,7 @@ COPY src/jenkins.sh /usr/local/bin/jenkins.sh
 COPY src/plugins.sh /usr/local/bin/plugins.sh
 COPY src/install-plugins.sh /usr/local/bin/install-plugins.sh
 
-USER jenkins
+# USER jenkins
 
 RUN install-plugins.sh  git \
                         github \
