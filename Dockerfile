@@ -17,7 +17,7 @@ RUN useradd -d /var/jenkins_home -m -s /bin/bash jenkins
 VOLUME /var/jenkins_home
 
 RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d && \
-    curl -fsSL https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/2.9/jenkins-war-2.9.war -o /usr/share/jenkins/jenkins.war && \
+    curl -fsSL https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/2.4/jenkins-war-2.4.war -o /usr/share/jenkins/jenkins.war && \
     chown -R jenkins /var/jenkins_home /usr/share/jenkins
 
 COPY src/init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-agent-port.groovy
